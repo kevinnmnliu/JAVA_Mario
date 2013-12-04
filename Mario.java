@@ -64,7 +64,7 @@ public class Mario extends CollidableObject{
 	private static final int STARTING_X = 25;
 	private static final int STARTING_Y = 140;
 	private static final float STARTING_DY = .03f;
-	private static final float INITIAL_JUMP_HEIGHT = -.34f; 
+	private static  float INITIAL_JUMP_HEIGHT = -.34f; 
 	private static final float JUMP_MULTIPLIER = .46f;
 	private static final float TERMINAL_WALKING_DX = .10f;
 	private static final float WALKING_DX_INC = .01f;
@@ -101,6 +101,8 @@ public class Mario extends CollidableObject{
 		
 		super(STARTING_X, STARTING_Y, soundManager);
 		
+		WheelOfStates(); // setting the various states and such 
+
 		setIsJumping(true);
 		dy = STARTING_DY;
 		jumpHeight = INITIAL_JUMP_HEIGHT;
@@ -116,18 +118,7 @@ public class Mario extends CollidableObject{
 		for(int i = 0; i < l.length; i++) {
 			r[i] = ImageManipulator.horizontalFlip(l[i]); // Flip every image in l.
 		}
-		
-		//Set the State Design Pattern
-		int stateChoose = 1 + (int)(Math.random() * ((2 - 1) + 1));
-		switch(stateChoose) {
-		case 1:
-			currentState = new Regular_State();	
-		case 2:
-			currentState = new Reverse_State();
-			
-		}
-
-		
+				
 		
 		// Create left animations.
     	stillLeft = new Animation(ANIM_TIME).addFrame(l[0]);
@@ -148,9 +139,9 @@ public class Mario extends CollidableObject{
 		setAnimation(stillRight);
 		currLeftAnim = walkLeft;
 		currRightAnim = walkRight;
-		kills = 0;
-	}
-	
+		kills = 0;	//new variable set by me, Kevin Liu, that guy
+ 	}
+	//All these setters are added by Kevin Liu, dudemeister
 	public void setDown(boolean set) {
 		isDownHeld = set;
 	}
@@ -163,14 +154,61 @@ public class Mario extends CollidableObject{
 	public void setSpace(boolean set) {
 		isSpaceHeld = set;
 	}
-	public void setState(Mario_State state) {
-		this.currentState = state;
+	public void setJumpHeight(float height) {
+		INITIAL_JUMP_HEIGHT = height;
 	}
-	
+	public void WheelOfStates() {							//The biggie addition, adds in the various states and their decorators
+		//Set the State Design Pattern
+		
+		//Range for random state
+		int Min = 1;
+		int MaxA = 4;
+		int MaxB = 3;
+		
+		//Set the base state
+		int stateChoose = Min + (int)(Math.random() * ((MaxA - Min) + 1));
+		Mario_State state = new Regular_State();
+		System.out.println(stateChoose);
+		switch(stateChoose) {
+		case 1:
+			state = new Regular_State();	
+			break;
+		case 2:
+			state = new Reverse_State();
+			break;
+		case 3: 
+			state = new Confusion_State();
+			break;
+		case 4:
+			state = new Confusion_StateB();
+			break;
+
+		}
+		
+		//Add the decorator for each state
+		int stateChooseA = Min + (int)(Math.random() * ((MaxB - Min) + 1));
+		System.out.println(stateChooseA );
+
+		switch(stateChooseA) {
+		case 1:
+			break;
+		case 2:
+			state = new MidgetJump_State(state, this);
+			break;
+		case 3:
+			state = new GiantJump_State(state, this);
+			break;
+		}
+		setState(state);
+	}
+	public void setState(Mario_State state) { // Added
+		currentState = state;
+	}
+	 
 	public int getHealth() {
 		return health;
 	}
-	
+
 	public boolean isInvisible() {
 		return isInvisible;
 	}
