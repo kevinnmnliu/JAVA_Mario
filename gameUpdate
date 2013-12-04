@@ -1,0 +1,53 @@
+package devforrest.mario.core;
+
+import devforrest.mario.core.tile.GameTile;
+import devforrest.mario.objects.base.Creature;
+import devforrest.mario.objects.creatures.Coin;
+import devforrest.mario.core.tile.TileMap;
+
+
+public class gameUpdate implements Observer {
+	public void update(){	
+		if (!gameOver) {
+			// Update all relevant Creatures.
+			for(int i = 0; i < map.relevantCreatures().size(); i++) {
+				Creature c = map.relevantCreatures().get(i);
+				if(!(c instanceof Coin)) {
+					c.updateCreature(map, period);
+					mario.playerCollision(map, c);
+					for(Creature other : map.relevantCreatures()) {
+						c.creatureCollision(other);
+					}
+				} else {
+					c.updateCreature(map, period);
+					mario.playerCollision(map, c);
+				}
+			}
+			
+			// Debugging information:
+			//System.out.println("relevant creatures size: " + map.relevantCreatures().size());
+			//System.out.println("creatures size: " + map.creatures().size());
+			//System.out.println(map.platforms().size());
+			
+			for(GameTile tile : map.animatedTiles()) {
+	            tile.collidingCreatures().clear();  // clear the colliding sprites on the tile
+	            tile.update(20);
+			}
+        
+			// Add creatures that need to be created. They are added here to avoid concurrent modifcation errors.
+            for(Creature c : map.creaturesToAdd()) {
+            	map.creatures().add(c);
+            }
+            
+            map.creaturesToAdd().clear(); // This line MUST be called BEFORE mario.update(). Why?
+            							  // If it is called after, all the creatures that are created
+            							  // as a result of mario colliding are not added next update because
+            							  // they are cleared immediately afterwards.
+
+			mario.update(map, period);
+			Coin.turn.update(period);
+			map.relevantCreatures().clear();
+			map.platforms().clear();
+		}
+	}
+}
