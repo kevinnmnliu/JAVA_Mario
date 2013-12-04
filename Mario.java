@@ -71,8 +71,8 @@ public class Mario extends CollidableObject{
 	private static final float TERMINAL_RUNNING_DX = .21f;
 	private static final float START_RUN_ANIM_THRESHOLD = .2f;
 	private static final float RUNNING_DX_INC = .001f;
-	private static final float TERMINAL_FALL_DY = .22f;
-	private static final int STARTING_LIFE = 1;
+	private static  float TERMINAL_FALL_DY = .22f;
+	private static final int STARTING_LIFE = 2;
 	private static final int ANIM_TIME = 125;
 	private int kills;
 	/* INITIAL_JUMP_HEIGHT + dx*JUMP_MULTIPLIER */
@@ -145,18 +145,31 @@ public class Mario extends CollidableObject{
 	public void setDown(boolean set) {
 		isDownHeld = set;
 	}
+	
 	public void setRight(boolean set) {
 		isRightHeld = set;
 	}
+	
 	public void setLeft(boolean set) {
 		isLeftHeld = set;
 	}
+	
 	public void setSpace(boolean set) {
 		isSpaceHeld = set;
 	}
+	
 	public void setJumpHeight(float height) {
-		INITIAL_JUMP_HEIGHT = height;
+		INITIAL_JUMP_HEIGHT += height;
 	}
+	
+	public void setHealth(int hp) {
+		health = hp;
+	}
+	
+	public void setFall(float terminal) {
+		TERMINAL_FALL_DY += terminal;
+	}
+	
 	public void WheelOfStates() {							//The biggie addition, adds in the various states and their decorators
 		//Set the State Design Pattern
 		
@@ -185,10 +198,12 @@ public class Mario extends CollidableObject{
 
 		}
 		
+		
 		//Add the decorator for each state
+		int Trials = 3;
+		while (Trials > 0) {
 		int stateChooseA = Min + (int)(Math.random() * ((MaxB - Min) + 1));
-		System.out.println(stateChooseA );
-
+		
 		switch(stateChooseA) {
 		case 1:
 			break;
@@ -198,6 +213,20 @@ public class Mario extends CollidableObject{
 		case 3:
 			state = new GiantJump_State(state, this);
 			break;
+		case 4:
+			state = new Healthy_State(state, this);
+			break;
+		case 5:
+			state = new Sickly_State(state, this);
+			break;
+		case 6:
+			state = new Fat_State(state, this);
+			break;
+		case 7:
+			state = new Feather_State(state, this);
+			break;
+		}
+		Trials--;
 		}
 		setState(state);
 	}
