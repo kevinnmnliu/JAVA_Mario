@@ -3,11 +3,19 @@ package devforrest.mario.core;
 import devforrest.mario.core.tile.GameTile;
 import devforrest.mario.objects.base.Creature;
 import devforrest.mario.objects.creatures.Coin;
+import devforrest.mario.objects.mario.Mario;
 import devforrest.mario.core.tile.TileMap;
-
+import devforrest.mario.objects.base.Collision;
 
 public class gameUpdate implements Observer {
 	public void update(){	
+	
+		Mario mario;
+		TileMap map;
+		int period = 20;
+		boolean gameOver = false;
+	
+		
 		if (!gameOver) {
 			// Update all relevant Creatures.
 			for(int i = 0; i < map.relevantCreatures().size(); i++) {
@@ -29,8 +37,8 @@ public class gameUpdate implements Observer {
 			//System.out.println("creatures size: " + map.creatures().size());
 			//System.out.println(map.platforms().size());
 			
-			for(GameTile tile : map.animatedTiles()) {
-	            tile.collidingCreatures().clear();  // clear the colliding sprites on the tile
+			for(GameTile tile : map.animatedTiles()){
+	         tile.collidingCreatures().clear();  // clear the colliding sprites on the tile
 	            tile.update(20);
 			}
         
@@ -43,7 +51,14 @@ public class gameUpdate implements Observer {
             							  // If it is called after, all the creatures that are created
             							  // as a result of mario colliding are not added next update because
             							  // they are cleared immediately afterwards.
-
+            mario.update(map, period);
+			int health = mario.getHealth();
+			if (health < 3){			
+			//notifyObservers();
+				
+				stopgame();
+				gameOver=true;
+            
 			mario.update(map, period);
 			Coin.turn.update(period);
 			map.relevantCreatures().clear();
