@@ -148,11 +148,16 @@ public class GamePanel extends JPanel implements Runnable {
 				Thread.sleep(period);
 			} catch(InterruptedException ex){}
 		}
+		if (gameWin) {
 		getParent().setVisible(false); 
 		player.close();
-		new GameFrame(level*2);
+		new GameFrame(level+2);
 
-		//System.exit(0); // so enclosing JFrame/JApplet exits
+		}
+		else if (gameOver) {
+
+		System.exit(0); // so enclosing JFrame/JApplet exits
+		}
 		
 	}
 	
@@ -199,12 +204,12 @@ public class GamePanel extends JPanel implements Runnable {
             							  // they are cleared immediately afterwards.
 
 			mario.update(map, period);
-			if (mario.getHealth() == 0) {
+			if (mario.getHealth() < 1) {
 				gameOver = true;
 				stopGame();
 			}
 			if (mario.getKill() > level) {
-				gameOver = true;
+				gameWin = true;
 				stopGame();
 			}
 
