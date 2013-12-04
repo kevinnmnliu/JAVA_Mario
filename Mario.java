@@ -27,7 +27,7 @@ import devforrest.mario.objects.creatures.RedKoopa;
 import devforrest.mario.objects.creatures.RedShell;
 import devforrest.mario.objects.creatures.Score;
 import devforrest.mario.util.ImageManipulator;
-import devforrest.mario.objects.mario.Mario_State;
+import devforrest.mario.objects.mario.*;
 
 
 
@@ -74,7 +74,7 @@ public class Mario extends CollidableObject{
 	private static final float TERMINAL_FALL_DY = .22f;
 	private static final int STARTING_LIFE = 1;
 	private static final int ANIM_TIME = 125;
-	
+	private int kills;
 	/* INITIAL_JUMP_HEIGHT + dx*JUMP_MULTIPLIER */
 	private float jumpHeight; 
 	
@@ -116,7 +116,19 @@ public class Mario extends CollidableObject{
 		for(int i = 0; i < l.length; i++) {
 			r[i] = ImageManipulator.horizontalFlip(l[i]); // Flip every image in l.
 		}
-				
+		
+		//Set the State Design Pattern
+		int stateChoose = 1 + (int)(Math.random() * ((2 - 1) + 1));
+		switch(stateChoose) {
+		case 1:
+			currentState = new Regular_State();	
+		case 2:
+			currentState = new Reverse_State();
+			
+		}
+
+		
+		
 		// Create left animations.
     	stillLeft = new Animation(ANIM_TIME).addFrame(l[0]);
 		walkLeft = new Animation(ANIM_TIME).addFrame(l[1]).addFrame(l[2]);
@@ -136,8 +148,21 @@ public class Mario extends CollidableObject{
 		setAnimation(stillRight);
 		currLeftAnim = walkLeft;
 		currRightAnim = walkRight;
+		kills = 0;
 	}
 	
+	public void setDown(boolean set) {
+		isDownHeld = set;
+	}
+	public void setRight(boolean set) {
+		isRightHeld = set;
+	}
+	public void setLeft(boolean set) {
+		isLeftHeld = set;
+	}
+	public void setSpace(boolean set) {
+		isSpaceHeld = set;
+	}
 	public void setState(Mario_State state) {
 		this.currentState = state;
 	}
@@ -148,6 +173,10 @@ public class Mario extends CollidableObject{
 	
 	public boolean isInvisible() {
 		return isInvisible;
+	}
+	
+	public int getKill() {
+		return kills;
 	}
 	
 	public boolean isOnSlopedTile() { return onSlopedTile; }
@@ -311,7 +340,7 @@ public class Mario extends CollidableObject{
 			}
 		} else if (isLeftHeld && isShiftHeld && !frictionLock) {
 			if (dx > -TERMINAL_WALKING_DX) {
-				dx = dx - WALKING_DX_INC;
+ 				dx = dx - WALKING_DX_INC;
 			} else if (dx > -TERMINAL_RUNNING_DX) {
 				if (dx < -START_RUN_ANIM_THRESHOLD) {
 					toggleMovement(2);
@@ -559,6 +588,7 @@ public class Mario extends CollidableObject{
 		} else {
 			setdY(jumpHeight/1.4f);
 		}
+		kills++;
 	}
 	
 	public void toggleMovement(int type) {
@@ -617,14 +647,14 @@ public class Mario extends CollidableObject{
         int key = e.getKeyCode();
 
         if (key == KeyEvent.VK_LEFT) {
-    		isLeftHeld = true;
+        	currentState.setLeft(this, true);
     		if(!isDownHeld) {
     			setAnimation(currLeftAnim);
     		}
         }
 
         if(key == KeyEvent.VK_RIGHT) {
-    		isRightHeld = true;
+        	currentState.setRight(this, true);
     		if(!isDownHeld) {
     			setAnimation(currRightAnim);
     		}
@@ -636,7 +666,7 @@ public class Mario extends CollidableObject{
       
         
         if(key == KeyEvent.VK_DOWN) {
-        	isDownHeld = true;
+        	currentState.setDown(this, true);
         	if(currentAnimation() == currLeftAnim || currentAnimation() == stillLeft || currentAnimation() == crouchLeft) {
         		setAnimation(crouchLeft);
         	}
@@ -647,7 +677,7 @@ public class Mario extends CollidableObject{
         
         if(key == KeyEvent.VK_SPACE) {	
         	if(!isJumping && !isSpaceHeld) {
-        		isSpaceHeld = true;
+            	currentState.setSpace(this, true);
         		soundManager.playJump();
 	        	isJumping = true;
 	        	dy = jumpHeight;
@@ -660,7 +690,7 @@ public class Mario extends CollidableObject{
         int key = e.getKeyCode();
 
         if (key == KeyEvent.VK_LEFT) {
-        	isLeftHeld = false;
+        	currentState.setLeft(this, false);
         	if(!isJumping) {
         		setAnimation(stillLeft);
         	}
@@ -668,7 +698,7 @@ public class Mario extends CollidableObject{
         }
 
         if(key == KeyEvent.VK_RIGHT) {
-        	isRightHeld = false;
+        	currentState.setRight(this, false);
         	if(!isJumping) {
         		setAnimation(stillRight);
         	}
@@ -685,7 +715,7 @@ public class Mario extends CollidableObject{
         }
 
         if(key == KeyEvent.VK_DOWN) {
-        	isDownHeld = false;
+        	currentState.setDown(this, false);
         	if (currentAnimation() == crouchLeft || currentAnimation() == currLeftAnim || currentAnimation() == changeLeft) {
         		setAnimation(stillLeft);
         	} 
