@@ -1,0 +1,14 @@
+package devforrest.mario.objects.base;
+
+public class CreatureUpdateEvent {
+
+	Creature creature;
+	
+	public CreatureUpdateEvent(Creature creature) {
+        this.creature = creature;
+    }
+	
+	public Creature getCreature() {
+        return this.creature;
+    }
+}
