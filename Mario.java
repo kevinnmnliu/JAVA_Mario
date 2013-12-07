@@ -170,66 +170,11 @@ public class Mario extends CollidableObject{
 		TERMINAL_FALL_DY += terminal;
 	}
 	
-	public void WheelOfStates() {							//The biggie addition, adds in the various states and their decorators
-		//Set the State Design Pattern
-		
-		//Range for random state
-		int Min = 1;
-		int MaxA = 4;
-		int MaxB = 3;
-		
-		//Set the base state
-		int stateChoose = Min + (int)(Math.random() * ((MaxA - Min) + 1));
-		Mario_State state = new Regular_State();
-		System.out.println(stateChoose);
-		switch(stateChoose) {
-		case 1:
-			state = new Regular_State();	
-			break;
-		case 2:
-			state = new Reverse_State();
-			break;
-		case 3: 
-			state = new Confusion_State();
-			break;
-		case 4:
-			state = new Confusion_StateB();
-			break;
-
-		}
-		
-		
-		//Add the decorator for each state
-		int Trials = 3;
-		while (Trials > 0) {
-		int stateChooseA = Min + (int)(Math.random() * ((MaxB - Min) + 1));
-		
-		switch(stateChooseA) {
-		case 1:
-			break;
-		case 2:
-			state = new MidgetJump_State(state, this);
-			break;
-		case 3:
-			state = new GiantJump_State(state, this);
-			break;
-		case 4:
-			state = new Healthy_State(state, this);
-			break;
-		case 5:
-			state = new Sickly_State(state, this);
-			break;
-		case 6:
-			state = new Fat_State(state, this);
-			break;
-		case 7:
-			state = new Feather_State(state, this);
-			break;
-		}
-		Trials--;
-		}
-		setState(state);
+	public void WheelOfStates() {							//The biggie addition, adds in the various states and their decorators, AND FACTORY BIOOOOOOOOOTCHES
+		State_Factory SF = new State_Factory();
+		setState(SF.Wheel_Of_States(this));
 	}
+	
 	public void setState(Mario_State state) { // Added
 		currentState = state;
 	}
