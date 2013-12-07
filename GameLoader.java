@@ -14,11 +14,9 @@ import javax.imageio.ImageIO;
 import devforrest.mario.core.sound.specific.MarioSoundManager22050Hz;
 import devforrest.mario.core.tile.GameTile;
 import devforrest.mario.core.tile.TileMap;
-import devforrest.mario.objects.creatures.Coin;
-import devforrest.mario.objects.creatures.Goomba;
+
 import devforrest.mario.objects.creatures.Platform;
-import devforrest.mario.objects.creatures.RedKoopa;
-import devforrest.mario.objects.creatures.RedShell;
+
 import devforrest.mario.objects.tiles.QuestionBlock;
 import devforrest.mario.objects.tiles.RotatingBlock;
 import devforrest.mario.objects.tiles.SlopedTile;
@@ -125,6 +123,7 @@ public class GameLoader {
 		height = lines.size(); // number of elements in lines is the height
 		
 		TileMap newMap = new TileMap(width, height);
+		Creature_Factory CFac = new Creature_Factory(newMap, count);
 		for (int y=0; y < height; y++) {
 			String line = lines.get(y);
 			for (int x=0; x < line.length(); x++) {
@@ -133,13 +132,12 @@ public class GameLoader {
 				int pixelX = GameRenderer.tilesToPixels(x);
 				int pixelY = GameRenderer.tilesToPixels(y);
 				// enumerate the possible tiles...
-				if (ch == 'G') {
-					for (int i = 0; i < count; i++){
-					newMap.creatures().add(new Goomba(pixelX, pixelY, soundManager));
-					}
-				} else if (ch == 'K') {
-					for (int i = 0; i < count; i++){
-					newMap.creatures().add(new RedKoopa(pixelX, pixelY, soundManager));
+				if (ch == 'G' || ch == 'K' || ch == 'C' || ch == 'S') {
+					newMap.creatures().add(CFac.createCreature(ch, pixelX, pixelY, soundManager));
+					if (CFac.multiply()) {
+						for(int i = 0; i < count; i++) {
+							newMap.creatures().add(CFac.createCreature(ch, pixelX, pixelY, soundManager));
+						}
 					}
 				} else if (ch == 'V') {
 					GameTile t = new GameTile(pixelX, pixelY, plain.get(56));
@@ -165,11 +163,7 @@ public class GameLoader {
 					QuestionBlock q = new QuestionBlock(pixelX, pixelY, newMap, soundManager, false, true);
 					newMap.setTile(x, y, q);
 					newMap.animatedTiles().add(q);
-				} else if (ch == 'S') {
-					newMap.creatures().add(new RedShell(pixelX, pixelY, newMap, soundManager, true));
-				} else if(ch == 'C') {
-					newMap.creatures().add(new Coin(pixelX, pixelY));
-				} else if(ch == 'P') {
+				}  else if(ch == 'P') {
 					Platform p = new Platform(pixelX, pixelY);
 					newMap.creatures().add(p);
 				} else if(ch == '9') {
